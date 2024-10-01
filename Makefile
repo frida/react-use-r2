@@ -2,6 +2,7 @@ R2_COMMIT ?= 5545df71eeead5aa035a389acd10ee2fdac3d5bc
 
 dist/lib/index.js: package.json lib/index.ts dist/r2.mjs
 	npm install
+	npm run build
 
 dist/r2.mjs: src/r2.c ext/radare2/libr/libr.a
 	mkdir -p $(@D)
