@@ -1,0 +1,5 @@
+/dist/
+/ext/radare2/
+/lib/r2.d.ts
+/lib/r2.mjs
+/node_modules/

@@ -1,0 +1,74 @@
+commit e3b09de10bcc4af5d09387f5e8441146104c7a73
+Author: Ole André Vadla Ravnås <oleavr@gmail.com>
+Date:   Sat Sep 14 00:31:22 2024 +0200
+
+    Tweak WASM config to suit Frida's use-case
+
+diff --git a/libr/include/r_types.h b/libr/include/r_types.h
+index 8626342a1b..d066c81a9a 100644
+--- a/libr/include/r_types.h
++++ b/libr/include/r_types.h
+@@ -549,7 +549,7 @@ static inline void *r_new_copy(int size, void *data) {
+ #define R_SYS_ARCH "x86"
+ #define R_SYS_BITS R_SYS_BITS_32
+ #define R_SYS_ENDIAN 0
+-#elif __EMSCRIPTEN__ || __wasi__
++#elif __wasi__
+ #define R_SYS_ARCH "wasm"
+ #define R_SYS_BITS (R_SYS_BITS_32 | R_SYS_BITS_64)
+ #define R_SYS_ENDIAN 0
+@@ -598,9 +598,9 @@ static inline void *r_new_copy(int size, void *data) {
+ #define R_SYS_BITS (R_SYS_BITS_32 | R_SYS_BITS_64)
+ #define R_SYS_ENDIAN 1
+ #elif __EMSCRIPTEN__
+-/* we should default to wasm when ready */
+ #define R_SYS_ARCH "x86"
+-#define R_SYS_BITS R_SYS_BITS_32
++#define R_SYS_BITS R_SYS_BITS_64
++#define R_SYS_ENDIAN 0
+ #elif __riscv__ || __riscv
+ # define R_SYS_ARCH "riscv"
+ # define R_SYS_ENDIAN 0
+diff --git a/sys/wasm.sh b/sys/wasm.sh
+index fdf73ecb94..a7d7963332 100755
+--- a/sys/wasm.sh
++++ b/sys/wasm.sh
+@@ -9,14 +9,34 @@ cd `dirname $PWD/$0` ; cd ..
+ OLD_LDFLAGS="${LDFLAGS}"
+ unset LDFLAGS
+ 
+-export CC="emcc -Os -s WASM=1 -s SIDE_MODULE=1"
++export CC="emcc"
++export CFLAGS="-Oz"
++export LDFLAGS="-sWASM=1 -sSIDE_MODULE=1 -Wl,--allow-multiple-definition"
+ export AR="emar"
+ 
+-CFGFLAGS="./configure --prefix=/usr --disable-debugger --with-compiler=wasm --with-static-themes --with-libr"
++CFGFLAGS=" \
++  --prefix=/usr \
++  --host=x86_64-unknown-linux-gnu \
++  --with-compiler=wasm \
++  --without-dylink \
++  --with-libversion="" \
++  --with-static-themes \
++  --with-checks-level=0 \
++  --without-jemalloc \
++  --without-fork \
++  --without-gperf \
++  --without-gpl \
++  --without-ptrace-wrap \
++  --disable-threads \
++  --disable-debugger \
++  --with-libr \
++"
++
++CAPSTONE_ARCHS="arm aarch64 mips x86"
+ 
+ make mrproper
+ cp -f dist/plugins-cfg/plugins.emscripten.cfg plugins.cfg
+ ./configure-plugins
+ 
+-./configure ${CFGFLAGS} --host=wasm && \
+-	make -s -j ${MAKE_JOBS} DEBUG=0
++./configure ${CFGFLAGS} && \
++	make -s -j ${MAKE_JOBS} DEBUG=0 BINS="" CAPSTONE_ARCHS="${CAPSTONE_ARCHS}"

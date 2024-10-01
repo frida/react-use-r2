@@ -1,0 +1,41 @@
+{
+  "name": "@frida/react-use-r2",
+  "version": "1.0.0",
+  "description": "React Hook for Radare integrations",
+  "main": "dist/index.js",
+  "files": [
+    "dist/"
+  ],
+  "scripts": {
+    "build": "tsc",
+    "watch": "tsc -w"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/frida/react-use-r2.git"
+  },
+  "keywords": [
+    "react",
+    "react-hooks",
+    "radare",
+    "r2",
+    "disassembly",
+    "static-analysis"
+  ],
+  "author": "Ole André Vadla Ravnås <oleavr@frida.re>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/frida/react-use-r2/issues"
+  },
+  "homepage": "https://github.com/frida/react-use-r2#readme",
+  "devDependencies": {
+    "@types/react": "^18.3.10",
+    "typescript": "^5.6.2"
+  },
+  "peerDependencies": {
+    "react": "^18.3.1"
+  },
+  "publishConfig": {
+    "access": "public"
+  }
+}
