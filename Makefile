@@ -29,5 +29,6 @@ ext/radare2/.stamp:
 	git clone https://github.com/radareorg/radare2.git ext/radare2
 	cd ext/radare2 \
 		&& git checkout $(R2_COMMIT) \
+		&& patch -p1 < ../../ext/patches/r2-fix-disasm-jump-json-encoding.patch \
 		&& patch -p1 < ../../ext/patches/r2-config-tweaks.patch
-	touch $@
+	@touch $@

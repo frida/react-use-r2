@@ -1,0 +1,27 @@
+From 4efda133281f0da062badd49cd2bdd1e2ecd0666 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Ole=20Andr=C3=A9=20Vadla=20Ravn=C3=A5s?= <oleavr@gmail.com>
+Date: Wed, 2 Oct 2024 11:51:44 +0200
+Subject: [PATCH] Fix JSON encoding of RAnalOp.jump ##disasm
+
+It's unsigned and may need to be encoded as a string, depending on the
+configuration.
+---
+ libr/core/disasm.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/libr/core/disasm.c b/libr/core/disasm.c
+index 37d5b361b3..cc7df18be7 100644
+--- a/libr/core/disasm.c
++++ b/libr/core/disasm.c
+@@ -7389,7 +7389,7 @@ R_IPI int r_core_print_disasm_json_ipi(RCore *core, ut64 addr, ut8 *buf, int nb_
+ 			pj_end (pj);
+ 		}
+ 		if (ds->analop.jump != UT64_MAX ) {
+-			pj_kN (pj, "jump", ds->analop.jump);
++			pj_kn (pj, "jump", ds->analop.jump);
+ 			if (ds->analop.fail != UT64_MAX) {
+ 				pj_kn (pj, "fail", ds->analop.fail);
+ 			}
+-- 
+2.45.2
+
