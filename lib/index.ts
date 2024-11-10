@@ -19,6 +19,12 @@ export type Architecture = "ia32" | "x64" | "arm" | "arm64" | "mips";
 
 export type ReadRequestHandler = (address: bigint, size: number) => Promise<Uint8Array | null>;
 
+export interface CommandOptions {
+    output?: OutputFormat;
+}
+
+export type OutputFormat = "plain" | "html";
+
 let state: "unloaded" | "loading" | "loaded" | "executing-command" = "unloaded";
 let r2Module: MainModule | null = null;
 const pendingCommands: CommandRequest[] = [];
@@ -26,6 +32,7 @@ const cachedPages = new Map<bigint, Uint8Array | null>([[0n, null]]);
 
 interface CommandRequest {
     command: string;
+    options: CommandOptions;
     onComplete(result: string): void;
 }
 
@@ -45,10 +52,11 @@ export function useR2({ source }: R2Props = {}) {
         }
     });
 
-    const executeR2Command = useCallback((command: string) => {
+    const executeR2Command = useCallback((command: string, options: CommandOptions = {}) => {
         return new Promise<string>(resolve => {
             pendingCommands.push({
                 command,
+                options,
                 onComplete: resolve,
             });
             maybeProcessPendingCommands();
@@ -143,11 +151,12 @@ async function maybeProcessPendingCommands() {
     state = "executing-command";
 
     const r = r2Module!;
-    const evaluate = r.cwrap("r2_execute", "number", ["string"], { async: true });
+    const evaluate = r.cwrap("r2_execute", "number", ["string", "number"], { async: true });
 
     let req: CommandRequest | undefined;
     while ((req = pendingCommands.shift()) !== undefined) {
-        const rawResult = await evaluate(req.command);
+        const { output = "html" } = req.options;
+        const rawResult = await evaluate(req.command, output === "html");
         try {
             const result = r.UTF8ToString(rawResult);
             req.onComplete(result);

@@ -69,9 +69,18 @@ r2_open (const char * os,
 }
 
 char *
-r2_execute (const char * command)
+r2_execute (const char * command,
+            bool output_html)
 {
-  return r_core_cmd_str (r, command);
+  if (!output_html)
+    r_config_set_b (r->config, "scr.html", false);
+
+  char * result = r_core_cmd_str (r, command);
+
+  if (!output_html)
+    r_config_set_b (r->config, "scr.html", true);
+
+  return result;
 }
 
 static bool
