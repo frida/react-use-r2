@@ -1,4 +1,4 @@
-R2_COMMIT ?= 5545df71eeead5aa035a389acd10ee2fdac3d5bc
+R2_COMMIT ?= 5c09c7105583433d23cc6eb9114b8a2517717ee2
 
 dist/lib/index.js: package.json lib/index.ts dist/r2.mjs
 	npm install
@@ -29,6 +29,5 @@ ext/radare2/.stamp:
 	git clone https://github.com/radareorg/radare2.git ext/radare2
 	cd ext/radare2 \
 		&& git checkout $(R2_COMMIT) \
-		&& patch -p1 < ../../ext/patches/r2-fix-disasm-jump-json-encoding.patch \
 		&& patch -p1 < ../../ext/patches/r2-config-tweaks.patch
 	@touch $@
